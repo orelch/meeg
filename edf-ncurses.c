@@ -28,73 +28,22 @@
 /*  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.    */
 /****************************************************************************/
 
+#include "edf-ncurses.h"
 
-#ifndef UTIX_EDF_H
-#define UTIX_EDF_H
+void edf_nc_print_signal(edf_t *e, int sig_id)
+{
+    const int margin = 2;
+    signal_info_t *s = &e->signal_infos[sig_id];
+    /* XXX:  min - max to have a negative value for have a classic y axe */
+    double row_scale = (double)LINES / (s->digital_min - s->digital_max) /4;
+    double samples_scale = (double)s->nb_samples / (COLS - 2 * margin);
 
-#include <stdint.h>
-#define EDF_VERSION_STRING "alpha 0.0"
-
-/* XXX: size are one more spec for final \0 */
-
-typedef struct signal_info_t {
-    char label[17];
-    char transducer[81];
-    char physical_dimension[9];
-    int  physical_min;
-    int  physical_max;
-    int  digital_min;
-    int  digital_max;
-    char prefiltering[81];
-    int  nb_samples;
-
-    int16_t        *data;
-} signal_info_t;
-
-typedef struct edf_t {
-    int   version;
-    char  local_patient_id[81];
-    char  local_record_id[81];
-    char  start_date[9];
-    char  start_time[9];
-    int   header_size;
-    int   nb_records;
-    int   duration;
-    int   nb_signals;
-
-    signal_info_t  *signal_infos;
-} edf_t;
-
-
-
-/*
- * \brief Parse an edf file
- *
- * \param[in,out] *edf      a pointer to the edf_struct to fiel with file data
- * \param[in]     *filename the path to the edf file
- *
- * \return 0 on Succes
- */
-int edf_file_parse(edf_t *edf, const char *filename);
-
-/* \breif Print on stderr the edf_t struct
- *
- * \param[in]  *edf  a pointer to the edf_t struct to be printed
- *
- * \return
- *             void
- *
- */
-void edf_print(edf_t *edf);
-
-/* \breif Print on stderr the signal_info_t struct
- *
- * \param[in] *signal_info a pointer to the signal_info_t struct to be printed
- *
- * \return
- *             void
- *
- */
-void signal_info_print(signal_info_t *signal_info);
-
-#endif
+    clear();
+    mvprintw(2, 1, s->label);
+    for (int i = 0; i < COLS - 2 * margin; i++) {
+        mvaddch(LINES / 2 + row_scale * s->data [(int)(i * samples_scale)],
+                i + margin,
+                'x');
+    }
+    refresh();
+}

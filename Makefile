@@ -36,7 +36,7 @@ CFLAGS += -g3 -std=gnu99
 .SECONDEXPANSION:
 TARGETS = edf
 
-edf_SOURCES = main.c edf.c
+edf_SOURCES = main.c edf.c edf-ncurses.c
 edf_LDFLAGS = -lncurses
 
 all: $(TARGETS)
