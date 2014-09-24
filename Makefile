@@ -37,11 +37,12 @@ CFLAGS += -g3 -std=gnu99
 TARGETS = edf
 
 edf_SOURCES = main.c edf.c
+edf_LDFLAGS = -lncurses
 
 all: $(TARGETS)
 
 edf: $$($$@_SOURCES)
-	$(CC)  -o $@ $(CFLAGS) $^
+	$(CC)  -o $@ $(CFLAGS) $($@_LDFLAGS) $^
 
 
 clean:

@@ -33,6 +33,7 @@
 #include <sysexits.h>
 #include <getopt.h>
 #include <string.h>
+#include <ncurses.h>
 
 
 #include "edf.h"
@@ -86,7 +87,15 @@ int main(int argc, char *argv[])
         return EX_USAGE;
     }
 
+    initscr();
+    printw("Parsing file %s", argv[argc - 1]);
+    refresh();
     edf_file_parse(&edf, argv[argc - 1]);
+
+    printw("File parsed, %d signals found", edf.nb_signals);
+    refresh();
+    getch();
+    endwin();
     edf_print(&edf);
     return EX_OK;
 }
