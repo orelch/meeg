@@ -33,18 +33,9 @@
 #include <sysexits.h>
 #include <getopt.h>
 #include <string.h>
-#include <ncurses.h>
 
 
 #include "edf.h"
-#include "edf-ncurses.h"
-
-
-
-
-static struct {
-    WINDOW *draw_win;
-} _G;
 
 /*{{{ Usage*/
 
@@ -69,45 +60,11 @@ static void usage(int full, const char *arg0)
 
 /*}}}*/
 
-static int init_ncurses(void)
-{
-    initscr();
-    if (LINES < 20) {
-        fprintf(stderr, "You need a terminal with at least 20 lines.");
-        return -1;
-    }
-    if (COLS < 100) {
-        fprintf(stderr, "You need a terminal with at least 100 columns.");
-        return -1;
-    }
-    keypad(stdscr, TRUE);
-    nonl();
-    cbreak();
-    noecho();
-    if (has_colors()) {
-        start_color();
-        init_pair(1, COLOR_RED,     COLOR_BLACK);
-        init_pair(2, COLOR_GREEN,   COLOR_BLACK);
-        init_pair(3, COLOR_YELLOW,  COLOR_BLACK);
-        init_pair(4, COLOR_BLUE,    COLOR_BLACK);
-        init_pair(5, COLOR_CYAN,    COLOR_BLACK);
-        init_pair(6, COLOR_MAGENTA, COLOR_BLACK);
-        init_pair(7, COLOR_WHITE,   COLOR_BLACK);
-    }
-    if (_G.draw_win) {
-        wclear(_G.draw_win);
-    } else {
-        _G.draw_win = newwin(LINES - 10, COLS, 10, 0);
-    }
-    return 0;
-}
-
 int main(int argc, char *argv[])
 {
     const char *arg0 = argv[0];
 
     int c;
-    int sig_id = 0;
     edf_t edf;
 
     memset(&edf, 0, sizeof(edf));
@@ -132,32 +89,7 @@ int main(int argc, char *argv[])
         return EX_USAGE;
     }
 
-    if (init_ncurses())
-        return EX_CONFIG;
 
     edf_file_parse(&edf, argv[argc - 1]);
-    edf_nc_print_signal(&edf, 0);
-    while (42) {
-        switch (getch()) {
-          case 'q':
-            goto end;
-          case KEY_DOWN:
-            sig_id --;
-            if (sig_id < 0) {
-               sig_id = 0;
-            }
-            edf_nc_print_signal(&edf, sig_id);
-            break;
-          case KEY_UP:
-            sig_id ++;
-            if (sig_id >= edf.nb_signals) {
-               sig_id = edf.nb_signals - 1;
-            }
-            edf_nc_print_signal(&edf, sig_id);
-            break;
-        }
-    }
-end:
-    endwin();
-    return EX_OK;
+    return edf_nc_display(&edf);
 }

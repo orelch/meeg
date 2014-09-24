@@ -28,17 +28,27 @@
 /*  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.    */
 /****************************************************************************/
 
-#include "edf-ncurses.h"
+#include <sysexits.h>
+#include <ncurses.h>
+
+#include "edf.h"
+
+static struct {
+    WINDOW *draw_win;
+} _G;
+
+
 
 void edf_nc_print_signal(edf_t *e, int sig_id)
 {
     const int margin = 2;
     signal_info_t *s = &e->signal_infos[sig_id];
     /* XXX:  min - max to have a negative value for have a classic y axe */
-    double row_scale = (double)LINES / (s->digital_min - s->digital_max) /4;
+    double row_scale = (double)LINES / (s->digital_min - s->digital_max) / 4;
     double samples_scale = (double)s->nb_samples / (COLS - 2 * margin);
 
     clear();
+    mvprintw(1, 1, "%d/%d", sig_id + 1, e->nb_signals);
     mvprintw(2, 1, s->label);
     for (int i = 0; i < COLS - 2 * margin; i++) {
         mvaddch(LINES / 2 + row_scale * s->data [(int)(i * samples_scale)],
@@ -46,4 +56,72 @@ void edf_nc_print_signal(edf_t *e, int sig_id)
                 'x');
     }
     refresh();
+}
+
+
+static int init_ncurses(void)
+{
+    initscr();
+    if (LINES < 20) {
+        fprintf(stderr, "You need a terminal with at least 20 lines.");
+        return -1;
+    }
+    if (COLS < 100) {
+        fprintf(stderr, "You need a terminal with at least 100 columns.");
+        return -1;
+    }
+    keypad(stdscr, TRUE);
+    nonl();
+    cbreak();
+    noecho();
+    if (has_colors()) {
+        start_color();
+        init_pair(1, COLOR_RED,     COLOR_BLACK);
+        init_pair(2, COLOR_GREEN,   COLOR_BLACK);
+        init_pair(3, COLOR_YELLOW,  COLOR_BLACK);
+        init_pair(4, COLOR_BLUE,    COLOR_BLACK);
+        init_pair(5, COLOR_CYAN,    COLOR_BLACK);
+        init_pair(6, COLOR_MAGENTA, COLOR_BLACK);
+        init_pair(7, COLOR_WHITE,   COLOR_BLACK);
+    }
+    if (_G.draw_win) {
+        wclear(_G.draw_win);
+    } else {
+        _G.draw_win = newwin(LINES - 10, COLS, 10, 0);
+    }
+    return 0;
+}
+
+
+
+int edf_nc_display(edf_t *edf)
+{
+    int sig_id = 0;
+    if (init_ncurses())
+        return -1;
+    edf_nc_print_signal(edf, 0);
+    while (42) {
+        switch (getch()) {
+          case 'q':
+            goto end;
+          case KEY_DOWN:
+            sig_id --;
+            if (sig_id < 0) {
+               sig_id = 0;
+            }
+            edf_nc_print_signal(edf, sig_id);
+            break;
+          case KEY_UP:
+            sig_id ++;
+            if (sig_id >= edf->nb_signals) {
+               sig_id = edf->nb_signals - 1;
+            }
+            edf_nc_print_signal(edf, sig_id);
+            break;
+        }
+    }
+
+end:
+    endwin();
+    return 0;
 }

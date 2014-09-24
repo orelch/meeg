@@ -34,6 +34,5 @@
 #include <ncurses.h>
 #include "edf.h"
 
-void edf_nc_print_signal(edf_t *e, int sig_id);
 
 #endif

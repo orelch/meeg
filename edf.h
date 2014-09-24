@@ -77,6 +77,19 @@ typedef struct edf_t {
  */
 int edf_file_parse(edf_t *edf, const char *filename);
 
+
+/*
+ * \brief Display data using ncurses
+ *
+ * \param[in] *edf a edf struct to display
+ *
+ * \return 0 when succesfully leaving ncurses (using 'q' key)
+ *         negative value in case of error
+ */
+int edf_nc_display(edf_t *e);
+
+/*{{{ Debug tools */
+
 /* \breif Print on stderr the edf_t struct
  *
  * \param[in]  *edf  a pointer to the edf_t struct to be printed
@@ -96,5 +109,8 @@ void edf_print(edf_t *edf);
  *
  */
 void signal_info_print(signal_info_t *signal_info);
+
+/*}}}*/
+
 
 #endif
