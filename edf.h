@@ -47,6 +47,8 @@ typedef struct signal_info_t {
     int  digital_max;
     char prefiltering[81];
     int  nb_samples;
+
+    int16_t        *data;
 } signal_info_t;
 
 typedef struct edf_t {
@@ -61,7 +63,6 @@ typedef struct edf_t {
     int   nb_signals;
 
     signal_info_t  *signal_infos;
-    int            *data;
 } edf_t;
 
 int edf_file_parse(edf_t *edf, const char *filename);

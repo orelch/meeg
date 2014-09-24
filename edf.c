@@ -160,6 +160,12 @@ int edf_file_parse(edf_t *edf, const char *filename)
         s->nb_samples = get_int(&p, 8);
     }
 
+    for (int i = 0; i < edf->nb_signals; i++) {
+        signal_info_t *s = &edf->signal_infos[i];
+        s->data = malloc(s->nb_samples * sizeof(int16_t));
+        fread(s->data, s->nb_samples, sizeof(int16_t), file);
+    }
+
     return 0;
 }
 
