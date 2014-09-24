@@ -58,24 +58,43 @@ typedef struct edf_t {
     char  start_date[9];
     char  start_time[9];
     int   header_size;
-    int   nb_record;
+    int   nb_records;
     int   duration;
     int   nb_signals;
 
     signal_info_t  *signal_infos;
 } edf_t;
 
+
+
+/*
+ * \brief Parse an edf file
+ *
+ * \param[in,out] *edf      a pointer to the edf_struct to fiel with file data
+ * \param[in]     *filename the path to the edf file
+ *
+ * \return 0 on Succes
+ */
 int edf_file_parse(edf_t *edf, const char *filename);
 
 /* \breif Print on stderr the edf_t struct
  *
- * \param[in]  *e  a pointer to the edf_t struct to be printed
+ * \param[in]  *edf  a pointer to the edf_t struct to be printed
  *
  * \return
  *             void
  *
  */
 void edf_print(edf_t *edf);
+
+/* \breif Print on stderr the signal_info_t struct
+ *
+ * \param[in] *signal_info a pointer to the signal_info_t struct to be printed
+ *
+ * \return
+ *             void
+ *
+ */
 void signal_info_print(signal_info_t *signal_info);
 
 #endif

@@ -65,7 +65,6 @@ int edf_file_parse(edf_t *edf, const char *filename)
     char buf[256];
     char *p = buf;
 
-    fprintf(stdout, "Parsing file <%s>\n", filename);
     /*
      * 8 ascii : version of this data format (0)
      * 80 ascii : local patient identification (mind item 3 of the additional
@@ -86,11 +85,10 @@ int edf_file_parse(edf_t *edf, const char *filename)
      */
     file = fopen(filename, "r");
     fread(&buf, sizeof(buf), 1, file);
-    fprintf(stderr, "buf: %s\n", buf);
 
     edf->version = get_int(&p, 8);
 
-    /* -1 for \0
+    /* -1 for final \0
      */
     strncpy(edf->local_patient_id, p, sizeof(edf->local_patient_id) - 1);
     p += 80;
@@ -109,7 +107,7 @@ int edf_file_parse(edf_t *edf, const char *filename)
 
     p += 44;
 
-    edf->nb_record = get_int(&p, 8);
+    edf->nb_records = get_int(&p, 8);
     edf->duration = get_int(&p, 8);
     edf->nb_signals = get_int(&p, 4);
 
@@ -175,49 +173,49 @@ int edf_file_parse(edf_t *edf, const char *filename)
 
 void signal_info_print(signal_info_t *s)
 {
-fprintf(stderr,
-        "label:%s\n"
-        "transducer:%s\n"
-        "physical_dimension:%s\n"
-        "physical_min:%d\n"
-        "physical_max:%d\n"
-        "digital_min:%d\n"
-        "digital_max:%d\n"
-        "prefiltering:%s\n"
-        "nb_samples:%d\n",
+    fprintf(stderr,
+            "label:%s\n"
+            "transducer:%s\n"
+            "physical_dimension:%s\n"
+            "physical_min:%d\n"
+            "physical_max:%d\n"
+            "digital_min:%d\n"
+            "digital_max:%d\n"
+            "prefiltering:%s\n"
+            "nb_samples:%d\n",
 
-        s->label,
-        s->transducer,
-        s->physical_dimension,
-        s->physical_min,
-        s->physical_max,
-        s->digital_min,
-        s->digital_max,
-        s->prefiltering,
-        s->nb_samples);
+            s->label,
+            s->transducer,
+            s->physical_dimension,
+            s->physical_min,
+            s->physical_max,
+            s->digital_min,
+            s->digital_max,
+            s->prefiltering,
+            s->nb_samples);
 
 }
 
 void edf_print(edf_t *e)
 {
     fprintf(stderr, "version: %d\n"
-    "local_patient_id:%s\n"
-    "local_record_id:%s\n"
-    "start_date:%s\n"
-    "start_time:%s\n"
-    "header_size:%d\n"
-    "nb_record:%d\n"
-    "duration:%d\n"
-    "nb_signals:%d\n",
-    e->version,
-    e->local_patient_id,
-    e->local_record_id,
-    e->start_date,
-    e->start_time,
-    e->header_size,
-    e->nb_record,
-    e->duration,
-    e->nb_signals);
+            "local_patient_id:%s\n"
+            "local_record_id:%s\n"
+            "start_date:%s\n"
+            "start_time:%s\n"
+            "header_size:%d\n"
+            "nb_records:%d\n"
+            "duration:%d\n"
+            "nb_signals:%d\n",
+            e->version,
+            e->local_patient_id,
+            e->local_record_id,
+            e->start_date,
+            e->start_time,
+            e->header_size,
+            e->nb_records,
+            e->duration,
+            e->nb_signals);
     for (int i = 0; i < e->nb_signals; i++) {
         signal_info_print(&e->signal_infos[i]);
     }
