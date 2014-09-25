@@ -59,6 +59,14 @@ static inline int get_int(char**q, size_t len)
     return res;
 }
 
+static inline void compute_scale_offset(signal_info_t *s)
+{
+       s->scale = (double)(s->physical_max - s->physical_min)/
+           (s->digital_max - s->digital_min);
+       s->offset = (double)s->physical_max - s->scale * s->digital_max;
+}
+
+
 int edf_file_parse(edf_t *edf, const char *filename)
 {
     FILE *file;
@@ -147,6 +155,7 @@ int edf_file_parse(edf_t *edf, const char *filename)
     for (int i = 0; i < edf->nb_signals; i++) {
         signal_info_t *s = &edf->signal_infos[i];
         s->digital_max = get_int(&p, 8);
+        compute_scale_offset(s);
     }
     for (int i = 0; i < edf->nb_signals; i++) {
         signal_info_t *s = &edf->signal_infos[i];
@@ -162,6 +171,12 @@ int edf_file_parse(edf_t *edf, const char *filename)
         signal_info_t *s = &edf->signal_infos[i];
         s->data = malloc(s->nb_samples * sizeof(int16_t));
         fread(s->data, s->nb_samples, sizeof(int16_t), file);
+        s->data_min = INT16_MAX;
+        s->data_max = INT16_MIN;
+        for (int j = 0; j < s->nb_samples; j++) {
+            s->data_min = MIN(s->data_min, s->data[j]);
+            s->data_max = MAX(s->data_max, s->data[j]);
+        }
     }
 
     return 0;

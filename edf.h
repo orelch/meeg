@@ -35,6 +35,16 @@
 #include <stdint.h>
 #define EDF_VERSION_STRING "alpha 0.0"
 
+
+#ifndef MAX
+#define MAX(a,b)     (((a) > (b)) ? (a) : (b))
+#endif
+#ifndef MIN
+#define MIN(a,b)     (((a) > (b)) ? (b) : (a))
+#endif
+
+typedef unsigned int flag_t;    /* for 1 bit bitfields */
+
 /* XXX: size are one more spec for final \0 */
 
 typedef struct signal_info_t {
@@ -49,6 +59,12 @@ typedef struct signal_info_t {
     int  nb_samples;
 
     int16_t        *data;
+
+    double scale;
+    double offset;
+
+    int16_t data_min;
+    int16_t data_max;
 } signal_info_t;
 
 typedef struct edf_t {
