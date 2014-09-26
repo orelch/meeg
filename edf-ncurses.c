@@ -259,10 +259,10 @@ int edf_nc_display(edf_t *edf)
             help_hidde();
             break;
           case KEY_RIGHT:
-            _G.scroll += 10;
+            _G.scroll += COLS;
             break;
           case KEY_LEFT:
-            _G.scroll -= 10;
+            _G.scroll -= COLS;
             _G.scroll = MAX(_G.scroll, 0);
             break;
         }
