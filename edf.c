@@ -49,11 +49,11 @@ static inline int get_int(char**q, size_t len)
     int res;
     char *p = *q;
 
-    old = p[8];
-    p[8] = '\0';
+    old = p[len];
+    p[len] = '\0';
     res = atoi(p);
-    p[8] = old;
-    p += 8;
+    p[len] = old;
+    p += len;
     *q = p;
 
     return res;
