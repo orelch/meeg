@@ -40,6 +40,36 @@
 
 #include "edf.h"
 
+
+edf_t* edf_init(edf_t *edf)
+{
+    memset(edf, 0, sizeof(*edf));
+}
+
+void edf_wipe(edf_t *edf)
+{
+    if (!edf)
+        return;
+    if (edf->signal_infos) {
+        for (int i = 0; i < edf->nb_signals; i++) {
+            signal_info_wipe(&edf->signal_infos[i]);
+        }
+        free (edf->signal_infos);
+    }
+    edf = NULL;
+}
+
+
+void signal_info_wipe(signal_info_t *signal_info)
+{
+    if (!signal_info)
+        return;
+    if (signal_info->data) {
+        free(signal_info->data);
+        signal_info->data = NULL;
+    }
+}
+
 /* \brief returns int by parsing len char and skip it
  *
  */

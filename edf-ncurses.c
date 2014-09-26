@@ -269,6 +269,7 @@ int edf_nc_display(edf_t *edf)
     }
 
 end:
+    delwin(_G.help_win);
     endwin();
     return 0;
 }

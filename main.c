@@ -64,10 +64,10 @@ int main(int argc, char *argv[])
 {
     const char *arg0 = argv[0];
 
-    int c;
+    int c, res;
     edf_t edf;
 
-    memset(&edf, 0, sizeof(edf));
+    edf_init(&edf);
     while ((c = getopt(argc, argv, "hV")) >= 0) {
         switch (c) {
           case 'h':
@@ -90,6 +90,15 @@ int main(int argc, char *argv[])
     }
 
 
-    edf_file_parse(&edf, argv[argc - 1]);
-    return edf_nc_display(&edf);
+    res = edf_file_parse(&edf, argv[argc - 1]);
+    if (res)
+        goto end;
+
+    res = edf_nc_display(&edf);
+
+    edf_wipe(&edf);
+
+
+end:
+    return res;
 }

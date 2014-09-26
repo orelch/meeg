@@ -82,6 +82,10 @@ typedef struct edf_t {
 } edf_t;
 
 
+edf_t* edf_init(edf_t *edf);
+void edf_wipe(edf_t *edf);
+
+void signal_info_wipe(signal_info_t *signal_info);
 
 /*
  * \brief Parse an edf file
