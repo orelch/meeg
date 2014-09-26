@@ -46,6 +46,7 @@ static struct {
     WINDOW           *help_win;
     double            row_scale;        /* scale for data feeting screen */
     double            samples_scale;    /* scale for time feeting screen */
+    double            _samples_scale;    /* scale for time feeting screen */
 
     int               sig_id;           /* current signal id             */
     int               zoom;             /* vertical zoom                 */
@@ -99,7 +100,7 @@ static void edf_nc_print_signal(int sig_id, int color)
 }
 
 
-static void help_hidde(void)
+static void help_hide(void)
 {
     if (_G.help_win) {
         wclear(_G.help_win);
@@ -107,21 +108,33 @@ static void help_hidde(void)
     }
 }
 
+#define HELP_LINE(key, text) do {               \
+    mvwprintw(_G.help_win, row, 4, key);        \
+    mvwprintw(_G.help_win, row++, 28, text);    \
+} while(0)
+
 static void help_show(void)
 {
-    int row = 3;
+    int row = 1;
+    int width = MIN (80, COLS / 2);
     if (_G.help_win) {
         wclear(_G.help_win);
     } else {
-        _G.help_win = newwin(LINES / 2, COLS / 2, LINES / 4, COLS / 4);
+        _G.help_win = newwin(LINES / 2, width,
+                             LINES / 4, COLS / 2 - width / 2);
     }
     box(_G.help_win, 0 , 0);
-    mvwprintw(_G.help_win, row++, 4, "h: display/hide this help");
-    mvwprintw(_G.help_win, row++, 4, "+: vertical zoom in");;
-    mvwprintw(_G.help_win, row++, 4, "-: vertical zoom out");;
-    mvwprintw(_G.help_win, row++, 4, "=: back to initial zoom");;
-    mvwprintw(_G.help_win, row++, 4, "KEY_UP/KEY_DOWN: browse signals");;
-    mvwprintw(_G.help_win, row++, 4, "SPACE: toggle keep signal or not");;
+    HELP_LINE("shortcut", "Fonction");
+    mvwhline(_G.help_win, row++, 1, ACS_HLINE, width - 2);
+    HELP_LINE("h", "display this help");
+    HELP_LINE( "+", "vertical zoom in");
+    HELP_LINE( "-", "vertical zoom out");
+    HELP_LINE( "=", "back to initial zoom");
+    HELP_LINE( "t", "toggle betwen one pt by col or seen full time");
+    HELP_LINE( "KEY_UP/KEY_DOWN", "browse signals");
+    HELP_LINE( "SPACE", "toggle keep signal or not");
+    mvwprintw(_G.help_win, LINES / 2 - 1, 28, "Press any key to quit help");
+    mvwvline(_G.help_win, 1, 24, ACS_VLINE, LINES / 2 - 2);
     wrefresh(_G.help_win);
 }
 
@@ -172,7 +185,8 @@ static int init_ncurses(edf_t *edf)
     /* Compute row and sample scales */
     _G.row_scale = (double)(LINES / 2  - MARGIN) /
         max / max_scale;
-    _G.samples_scale = (double)max_samples / (COLS - 2 * MARGIN);
+    _G._samples_scale = (double)max_samples / (COLS - 2 * MARGIN);
+    _G.samples_scale = _G._samples_scale;
 
     return 0;
 }
@@ -255,8 +269,8 @@ int edf_nc_display(edf_t *edf)
             break;
           case 'h':
             help_show();
-            while (getch() != 'h') {}
-            help_hidde();
+            getch();
+            help_hide();
             break;
           case KEY_RIGHT:
             _G.scroll += COLS;
@@ -264,6 +278,13 @@ int edf_nc_display(edf_t *edf)
           case KEY_LEFT:
             _G.scroll -= COLS;
             _G.scroll = MAX(_G.scroll, 0);
+            break;
+          case 't':
+            if (_G.samples_scale == 1) {
+                _G.samples_scale = _G._samples_scale;
+            } else {
+                _G.samples_scale = 1;
+            }
             break;
         }
     }
