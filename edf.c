@@ -201,6 +201,7 @@ int edf_file_parse(edf_t *edf, const char *filename)
         signal_info_t *s = &edf->signal_infos[i];
         s->data = malloc(s->nb_samples * edf->nb_records * sizeof(int16_t));
     }
+    /*XXX: kept i for nb_signals to be coherent with previous loop */
     for (int k = 0; k < edf->nb_records; k++) {
         for (int i = 0; i < edf->nb_signals; i++) {
             signal_info_t *s = &edf->signal_infos[i];
@@ -208,6 +209,7 @@ int edf_file_parse(edf_t *edf, const char *filename)
                   sizeof(int16_t), file);
         }
     }
+    /* Lookup to find real max and real min, we can't trust header */
     for (int i = 0; i < edf->nb_signals; i++) {
         signal_info_t *s = &edf->signal_infos[i];
         s->data_min = INT16_MAX;
