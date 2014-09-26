@@ -87,7 +87,7 @@ static void edf_nc_print_signal(int sig_id, int color)
     attron(color);
     for (int i = 0; i < COLS - 2 * MARGIN; i++) {
         int k = _G.scroll + (i * _G.samples_scale);
-        if (k >= s->nb_samples)
+        if (k >= s->nb_samples * _G.edf->nb_records)
             break;
 
         mvaddch(LINES / 2 - _G.row_scale * _G.zoom / 128 *
@@ -167,7 +167,7 @@ static int init_ncurses(edf_t *edf)
         max = MAX(max, MAX(s->data_max, -1 * s->data_min));
         /* search max scale, all signal will feet on screen */
         max_scale = MAX(max_scale, s->scale);
-        max_samples = MAX(max_samples, s->nb_samples);
+        max_samples = MAX(max_samples, s->nb_samples * _G.edf->nb_records);
     }
     /* Compute row and sample scales */
     _G.row_scale = (double)(LINES / 2  - MARGIN) /

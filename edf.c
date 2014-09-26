@@ -169,16 +169,24 @@ int edf_file_parse(edf_t *edf, const char *filename)
 
     for (int i = 0; i < edf->nb_signals; i++) {
         signal_info_t *s = &edf->signal_infos[i];
-        s->data = malloc(s->nb_samples * sizeof(int16_t));
-        fread(s->data, s->nb_samples, sizeof(int16_t), file);
+        s->data = malloc(s->nb_samples * edf->nb_records * sizeof(int16_t));
+    }
+    for (int k = 0; k < edf->nb_records; k++) {
+        for (int i = 0; i < edf->nb_signals; i++) {
+            signal_info_t *s = &edf->signal_infos[i];
+            fread(&s->data[k * s->nb_samples], s->nb_samples,
+                  sizeof(int16_t), file);
+        }
+    }
+    for (int i = 0; i < edf->nb_signals; i++) {
+        signal_info_t *s = &edf->signal_infos[i];
         s->data_min = INT16_MAX;
         s->data_max = INT16_MIN;
-        for (int j = 0; j < s->nb_samples; j++) {
+        for (int j = 0; j < s->nb_samples * edf->nb_records; j++) {
             s->data_min = MIN(s->data_min, s->data[j]);
             s->data_max = MAX(s->data_max, s->data[j]);
         }
     }
-
     return 0;
 }
 
