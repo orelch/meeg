@@ -193,7 +193,6 @@ static void nc_current_sig(void) {
              s->digital_min, s->digital_max);
     mvprintw(0, 120, "data min %d max %d",
              s->data_min, s->data_max);
-    mvprintw(1, 120, "scale %g", _G.samples_scale);
     attroff(_G.signals_display[_G.sig_id].color);
 }
 
